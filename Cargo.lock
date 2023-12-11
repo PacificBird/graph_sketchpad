@@ -1160,6 +1160,7 @@ dependencies = [
  "eframe",
  "egui",
  "egui_plot",
+ "emath",
  "env_logger",
  "log",
  "petgraph",
