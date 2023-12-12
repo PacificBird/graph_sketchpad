@@ -93,6 +93,17 @@ impl eframe::App for TemplateApp {
                             .expect("There must be a node at this index")
                             .to_point(plot_ui.transform());
                         let point2 = egui_plot::PlotPoint::new(pos2.x, pos2.y);
+                        if i1 == i2 {
+                            plot_ui.line(
+                                egui_plot::Line::new(circle(pos1, 10.0)).stroke(egui::Stroke::new(
+                                    2.0,
+                                    self.graph
+                                        .edge_weight(edge_idx)
+                                        .expect("There must be an edge at this index")
+                                        .color,
+                                )),
+                            );
+                        }
                         plot_ui.line(
                             egui_plot::Line::new(egui_plot::PlotPoints::Owned(vec![
                                 point1, point2,
@@ -231,4 +242,22 @@ fn get_close_node(
             .distance(pos)
             < 15.0
     })
+}
+
+fn circle(circ_pos: egui_plot::PlotPoint, radius: f32) -> egui_plot::PlotPoints {
+    egui_plot::PlotPoints::Owned(
+        (1..=8)
+            .map(|z| {
+                let r = radius;
+                let offset = r / f32::sqrt(2.0);
+                egui_plot::PlotPoint::new(
+                    (circ_pos.x as f32 + offset)
+                        + (r * f32::cos((2.0 * std::f32::consts::PI) / z as f32)),
+                    (circ_pos.y as f32 + offset)
+                        + (r * f32::sin((2.0 * std::f32::consts::PI) / z as f32)),
+                )
+            })
+            .map(|pos| egui_plot::PlotPoint::new(pos.x, pos.y))
+            .collect(),
+    )
 }
