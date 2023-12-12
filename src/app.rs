@@ -95,13 +95,15 @@ impl eframe::App for TemplateApp {
                         let point2 = egui_plot::PlotPoint::new(pos2.x, pos2.y);
                         if i1 == i2 {
                             plot_ui.line(
-                                egui_plot::Line::new(circle(pos1, 10.0)).stroke(egui::Stroke::new(
-                                    2.0,
-                                    self.graph
-                                        .edge_weight(edge_idx)
-                                        .expect("There must be an edge at this index")
-                                        .color,
-                                )),
+                                egui_plot::Line::new(circle(pos1, 0.0005)).stroke(
+                                    egui::Stroke::new(
+                                        2.0,
+                                        self.graph
+                                            .edge_weight(edge_idx)
+                                            .expect("There must be an edge at this index")
+                                            .color,
+                                    ),
+                                ),
                             );
                         }
                         plot_ui.line(
@@ -245,19 +247,17 @@ fn get_close_node(
 }
 
 fn circle(circ_pos: egui_plot::PlotPoint, radius: f32) -> egui_plot::PlotPoints {
-    egui_plot::PlotPoints::Owned(
-        (1..=8)
-            .map(|z| {
-                let r = radius;
-                let offset = r / f32::sqrt(2.0);
-                egui_plot::PlotPoint::new(
-                    (circ_pos.x as f32 + offset)
-                        + (r * f32::cos((2.0 * std::f32::consts::PI) / z as f32)),
-                    (circ_pos.y as f32 + offset)
-                        + (r * f32::sin((2.0 * std::f32::consts::PI) / z as f32)),
-                )
-            })
-            .map(|pos| egui_plot::PlotPoint::new(pos.x, pos.y))
-            .collect(),
-    )
+    let points: Vec<egui_plot::PlotPoint> = (0..=16)
+        .map(|z| {
+            let r = radius;
+            let offset = r / f32::sqrt(2.0);
+            let step = 2.0 * std::f32::consts::PI / 16.0;
+            egui_plot::PlotPoint::new(
+                (circ_pos.x as f32 + offset) + (r * f32::cos(step * z as f32)),
+                (circ_pos.y as f32 + offset) + (r * f32::sin(step * z as f32)),
+            )
+        })
+        .map(|pos| egui_plot::PlotPoint::new(pos.x, pos.y))
+        .collect();
+    egui_plot::PlotPoints::Owned(points)
 }
